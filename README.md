@@ -1,3 +1,3 @@
 # product-api
-This is my api for my project 
+start command : "nodemon index"
 
