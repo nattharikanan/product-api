@@ -34,13 +34,14 @@ router.post("/login", async (req, res) => {
     });
   }
   try {
-    if (bcrypt.compareSync(req.body.password, rows[0].password)) {
+    if( (bcrypt.compareSync(req.body.password, rows[0].password)) && rows[0].status == "user") {
       const token = jwt.sign(
         {
           email: rows[0].email,
           fisrtname: rows[0].firstname,
           lastname: rows[0].lastname,
           gender: rows[0].gender,
+          status:rows[0].status
         },
         process.env.JWT_KEY,
         {
@@ -49,10 +50,31 @@ router.post("/login", async (req, res) => {
       );
       return res.send({
         ok: true,
-        message: "เข้าสู่ระบบ",
+        message: "เข้าสู่ระบบ User",
         token: token,
       });
-    } else {
+    }
+    if( (bcrypt.compareSync(req.body.password, rows[0].password)) && rows[0].status == "admin") {
+      const token = jwt.sign(
+        {
+          email: rows[0].email,
+          fisrtname: rows[0].firstname,
+          lastname: rows[0].lastname,
+          gender: rows[0].gender,
+          status:rows[0].status
+        },
+        process.env.JWT_KEY,
+        {
+          expiresIn: "1h",
+        }
+      );
+      return res.send({
+        ok: true,
+        message: "เข้าสู่ระบบ Admin",
+        token: token,
+      });
+    }
+    else {
       return res.send({
         ok: false,
         message: "ยืนยันไม่สำเร็จ",
@@ -126,7 +148,7 @@ router.post("/register", async (req, res) => {
     let rows = await req.db("users").where("email", "=", req.body.email); //emailที่ดึงมา ไม่ซ้ำ
     if (rows.length === 0) {
       //ตรวจจากความยาวแล้วไม่ซ้ำ
-      
+      let statususer = "user"
       try {
         const hash = bcrypt.hashSync(req.body.password, 10); //เข้ารหัส
         let db = req.db;
@@ -138,6 +160,7 @@ router.post("/register", async (req, res) => {
           password: hash,
           phone: req.body.phone,
           age: req.body.age,
+          status:statususer
         });
         return res.send({
           ok: true,

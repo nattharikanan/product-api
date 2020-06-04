@@ -12,7 +12,11 @@ router.get("/", async (req, res) => {
     if (req.query.categoryid) {
       rows = await db("products")
         .where("categoryid", "=", req.query.categoryid);
-    } else {
+    }
+    else if (req.query.productid) {
+      rows = await db("products")
+        .where("productid", "=", req.query.productid);
+    }else {
       rows = await db("products");
     }
     res.send({
@@ -110,7 +114,7 @@ router.post("/delete", async (req, res) => {
     .catch((e) => res.send({ status: false, error: e.message }));
 });
 
-// /api/student/new//เพิ่มชื่อนักเรียน
+
 router.post("/insert", async (req, res) => {
   let db = req.db;
   let ids = await db("products").insert({
