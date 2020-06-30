@@ -140,8 +140,12 @@ router.post("/insert", async (req, res) => {
       let db = req.db;
       let rows;
       if (req.query.productname) {
-        rows = await db("products")
-          .where("productname", "like",'%'+req.query.productname+'%');
+        // rows = await db("products")
+        //   .where("productname", "like", '%' + req.query.productname + '%',"productid","like",'%' + req.query.productname + '%')
+        rows = await db("products as p").join("categories as c", "c.categoryid", "p.categoryid")
+          .where("categoryname", "like", '%' + req.query.productname + '%',"productname", "like", '%' + req.query.productname + '%')
+
+        
       } else {
         rows = await db("products");
       }

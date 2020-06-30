@@ -26,19 +26,48 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  let db = req.db;
-  let ids = await db("carts").insert({
-    product_id: req.body.product_id,
-    pname: req.body.pname,
-    cid: req.body.cid,
-    price: req.body.price,
-    notation: req.body.notation,
-    pstatus: req.body.pstatus,
-    pimage: req.body.pimage,
-    quantity: req.body.quantity,
-  });
-  res.send({
-    ok: true,
-    ids: ids,
-  });
+  try {
+    let db = req.db;
+    let rows = await db("carts").insert({
+      productid: req.body.productid,
+      userid: req.body.userid,
+      quantity: req.body.quantity,
+    });
+    res.send({
+      ok: true,
+      rows: rows,
+    });
+  } catch (e) {
+    res.send({ ok: false, error: e.message });
+  }
+});
+
+router.get("/detail", async (req, res) => {
+  try {
+    let db = req.db;
+    let rows;
+    if (req.query.userid) {
+      rows = await db("carts as c")
+        .join("users as u", "c.userid", "u.userid")
+        .join("products as p", "c.productid", "p.productid")
+        .where("c.userid", "=", req.query.userid)
+
+        .select([
+          "u.firstname",
+          "p.productid",
+          "p.productname",
+          "c.quantity",
+          "p.unitprice",
+        ]);
+    } else {
+      rows = await db("carts");
+    }
+
+    res.send({
+      ok: true, // ส่ง status
+      carts: rows, // ส่งค่ากลับ
+    });
+  } catch (e) {
+    res.send({ ok: false, error: e.message });
+  }
 });
