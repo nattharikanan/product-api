@@ -1,6 +1,5 @@
 
 module.exports = {
-  port: 7000,
   db: {
     host : 'us-cdbr-east-02.cleardb.com',
     user : 'b6fdd4db30c792',
